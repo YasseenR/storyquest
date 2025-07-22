@@ -625,7 +625,6 @@ export default function Home() {
             </p>
           ) : (
             <button
-              onClick={speakCurrentPhrase}
               className="relative text-9xl p-10 bg-gradient-to-tr from-purple-400 via-pink-500 to-red-500 text-white rounded-full shadow-2xl ring-4 ring-offset-4 ring-purple-300 
             transform transition duration-300 ease-in-out hover:scale-110 active:scale-95 animate-pulse"
               aria-label="Press to start reading"
