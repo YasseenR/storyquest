@@ -38,20 +38,6 @@ import {
   runTransaction,
 } from "firebase/firestore"; // to update the firestore database with game data
 
-// SparkleEffect: A visual effect that simulates a sparkle animation.
-const SparkleEffect = ({ onComplete }: { onComplete: () => void }) => {
-  return (
-    <motion.div
-      className="absolute w-20 h-20 bg-white rounded-full"
-      style={{ filter: "blur(4px)", opacity: 0.7 }}
-      initial={{ scale: 0, opacity: 1 }}
-      animate={{ scale: [0, 1.5, 0], opacity: [1, 0.8, 0] }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
-      onAnimationComplete={onComplete} // Calls the provided function when the animation finishes.
-    />
-  );
-};
-
 const availableAvatars = ["🐯", "🐻", "🦄", "🐰", "🐬", "🦋"];
 
 // getImageAnimation: Returns a reusable animation configuration for images.
@@ -124,7 +110,6 @@ export default function Home() {
   const [playerAvatars, setPlayerAvatars] = useState<{
     [key: number]: string | undefined;
   }>({});
-  const [showSparkles, setShowSparkles] = useState<boolean[]>([]);
   const [storyCompleted, setStoryCompleted] = useState(false); // Used as a check for the story completion overlay
   const [showOverlay, setShowOverlay] = useState(false); // Is shown after storycompleted = true, with a delay
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
@@ -289,7 +274,7 @@ export default function Home() {
           setCurrentSectionIndex(gameData.currentSectionIndex || 0);
           setPhrase(
             currentStory.sections[gameData.currentSectionIndex || 0]?.phrase ||
-              ""
+            ""
           );
         }
       }
@@ -420,7 +405,6 @@ export default function Home() {
     setTurnReminders([]);
     setCompletedImages([]);
     setCurrentImage(null);
-    setShowSparkles([]);
     if (roomId) {
       const gameRef = doc(db, "games", roomId);
       await updateDoc(gameRef, {
@@ -519,7 +503,6 @@ export default function Home() {
     setCompletedPhrases([...completedPhrases, newPhrase]);
     setCompletedImages([...completedImages, newImage]);
     setSelectedWords([...selectedWords, lastWordSelected]);
-    setShowSparkles((prev) => [...prev, true]);
   };
 
   const handleAACSelect = (word: string) => {
@@ -569,16 +552,14 @@ export default function Home() {
                         disabled={taken}
                         className={`
                         text-4xl p-2 rounded-full border-4
-                        ${
-                          selectedAvatar === a
+                        ${selectedAvatar === a
                             ? "border-green-500"
                             : "border-transparent"
-                        }
-                        ${
-                          taken
+                          }
+                        ${taken
                             ? "opacity-40 cursor-not-allowed"
                             : "hover:scale-110 transition-transform"
-                        }
+                          }
                       `}
                       >
                         {a}
@@ -662,10 +643,9 @@ export default function Home() {
                         <div key={num} className="flex flex-col items-center">
                           <span
                             className={`
-                              ${
-                                highlight
-                                  ? "text-7xl p-4 border-4 ring-4 ring-yellow-300 bg-green-500 rounded-full scale-150 animate-pulse glow"
-                                  : "text-5xl p-2 border-2 border-gray-400"
+                              ${highlight
+                                ? "text-7xl p-4 border-4 ring-4 ring-yellow-300 bg-green-500 rounded-full scale-150 animate-pulse glow"
+                                : "text-5xl p-2 border-2 border-gray-400"
                               }
                               rounded-full
                               transition-transform duration-300 ease-in-out
@@ -691,11 +671,10 @@ export default function Home() {
               <div className="mt-2 text-center w-full">
                 {playerNumber === currentTurn ? (
                   <p
-                    className={`text-2xl font-extrabold ${
-                      highlightedPlayer === currentTurn
+                    className={`text-2xl font-extrabold ${highlightedPlayer === currentTurn
                         ? "text-red-600 animate-pulse"
                         : "text-green-600"
-                    }`}
+                      }`}
                   >
                     {highlightedPlayer === currentTurn
                       ? "⚠️ YOUR TURN! (PLAY NOW!)"
@@ -710,9 +689,8 @@ export default function Home() {
             </div>
           )}
           <div
-            className={`aac-blocking-container ${
-              blockOverlay ? "blocked" : ""
-            }`}
+            className={`aac-blocking-container ${blockOverlay ? "blocked" : ""
+              }`}
             style={{ height: "60%" }}
           >
             <AACKeyboard
@@ -720,12 +698,12 @@ export default function Home() {
               symbols={
                 trimmedSections[currentSectionIndex] // Use trimmedSections here
                   ? Object.entries(
-                      trimmedSections[currentSectionIndex].words
-                    ).map(([word, data]) => ({
-                      word: word,
-                      image: `/images/${data.image}`,
-                      displayText: word,
-                    }))
+                    trimmedSections[currentSectionIndex].words
+                  ).map(([word, data]) => ({
+                    word: word,
+                    image: `/images/${data.image}`,
+                    displayText: word,
+                  }))
                   : []
               }
               backgroundColor={currentStory?.colorTheme.backgroundColor}
@@ -789,22 +767,11 @@ export default function Home() {
                 {phrase}
                 <span className="ml-1 inline-block w-2 h- bg-amber-600 animate-blink"></span>
               </span>
-
-              {/* Floating fairydust particles */}
-              <div className="absolute -top-8 left-0 right-0 flex justify-between px-10">
-                <span className="text-3xl opacity-70 animate-float">✨</span>
-                <span className="text-2xl opacity-60 animate-float delay-100">
-                  ❋
-                </span>
-                <span className="text-3xl opacity-80 animate-float delay-200">
-                  ✧
-                </span>
-              </div>
             </div>
           </div>
 
-          {/* Animated Images with Sparkles: Shows selected images with a sparkle effect. */}
-          <AnimatePresence>
+          {/* Animated Images (sparkles removed) */}
+          <AnimatePresence> 
             {completedImages.map((image, index) => {
               const imageData = trimmedSections
                 .flatMap((section) => Object.values(section.words))
@@ -931,19 +898,7 @@ export default function Home() {
                     top: `${Math.min(image.y, 60)}%`,
                   }}
                 >
-                  {showSparkles[index] ? (
-                    <SparkleEffect
-                      onComplete={() =>
-                        setShowSparkles((prev) => {
-                          const newState = [...prev];
-                          newState[index] = false;
-                          return newState;
-                        })
-                      }
-                    />
-                  ) : (
-                    effectComponent
-                  )}
+                  {effectComponent}
                 </div>
               );
             })}
