@@ -782,7 +782,7 @@ export default function Home() {
                 .find((data) => `/images/${data.image}` === image.src); // Use trimmedSections
               const effect = imageData?.effect || "none"; // Get the effect, default to 'none'
               let effectComponent = null;
-              if (effect === "spin") {
+              {/*if (effect === "spin") {
                 effectComponent = (
                   <SpinEffect key={`spin-${index}`}>
                     <img
@@ -881,7 +881,7 @@ export default function Home() {
                     />
                   </FlipEffect>
                 );
-              } else {
+              } else {*/}
                 effectComponent = (
                   <motion.img
                     key={`normal-${index}`}
@@ -891,7 +891,7 @@ export default function Home() {
                     {...getImageAnimation()}
                   />
                 );
-              }
+              {/*}*/}
 
               return (
                 <div
