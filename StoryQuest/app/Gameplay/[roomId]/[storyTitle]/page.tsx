@@ -384,14 +384,14 @@ export default function Home() {
   }, [phrase, playerNumber, currentTurn]);
 
   const speakCurrentPhrase = useCallback(() => {
-    setIsAutoReading(true); // Set to true when auto-read starts
-    const u = new SpeechSynthesisUtterance(phrase);
-    u.addEventListener("end", () => {
-      setIsAutoReading(false); // Set to false when done
+    //setIsAutoReading(true); // Set to true when auto-read starts
+    //const u = new SpeechSynthesisUtterance(phrase);
+    //u.addEventListener("end", () => {
+    //  setIsAutoReading(false); // Set to false when done
       setShowInitialPlayOverlay(false);
-    });
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
+    //});
+    //window.speechSynthesis.cancel();
+    //window.speechSynthesis.speak(u);
   }, [phrase]);
 
   // Not used
@@ -730,7 +730,11 @@ export default function Home() {
         >
           {/* Completed Phrases (positioned with the text) */}
           {/* Storybook Text Display */}
-          <div className="absolute bottom-0 left-0 right-0 min-h-[120px] bg-[url('/images/parchment-texture.png')] bg-cover p-4 border-t-8 border-amber-800 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
+          <div className="absolute bottom-0 left-0 right-0 min-h-[120px] bg-[url('/images/parchment-texture.png')] bg-cover p-4 border-t-8 border-amber-800 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]"
+            style={{
+              zIndex: 10
+            }}
+          >
             {/* Decorative scroll ends */}
             <div className="absolute -top-6 left-4 right-4 flex justify-between pointer-events-none">
               <span className="text-5xl text-amber-800">✧</span>
@@ -778,7 +782,7 @@ export default function Home() {
                 .find((data) => `/images/${data.image}` === image.src); // Use trimmedSections
               const effect = imageData?.effect || "none"; // Get the effect, default to 'none'
               let effectComponent = null;
-              if (effect === "spin") {
+              {/*if (effect === "spin") {
                 effectComponent = (
                   <SpinEffect key={`spin-${index}`}>
                     <img
@@ -877,7 +881,7 @@ export default function Home() {
                     />
                   </FlipEffect>
                 );
-              } else {
+              } else {*/}
                 effectComponent = (
                   <motion.img
                     key={`normal-${index}`}
@@ -887,7 +891,7 @@ export default function Home() {
                     {...getImageAnimation()}
                   />
                 );
-              }
+              {/*}*/}
 
               return (
                 <div
