@@ -730,7 +730,11 @@ export default function Home() {
         >
           {/* Completed Phrases (positioned with the text) */}
           {/* Storybook Text Display */}
-          <div className="absolute bottom-0 left-0 right-0 min-h-[120px] bg-[url('/images/parchment-texture.png')] bg-cover p-4 border-t-8 border-amber-800 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
+          <div className="absolute bottom-0 left-0 right-0 min-h-[120px] bg-[url('/images/parchment-texture.png')] bg-cover p-4 border-t-8 border-amber-800 shadow-[0_-10px_30px_rgba(0,0,0,0.3)]"
+            style={{
+              zIndex: 10
+            }}
+          >
             {/* Decorative scroll ends */}
             <div className="absolute -top-6 left-4 right-4 flex justify-between pointer-events-none">
               <span className="text-5xl text-amber-800">✧</span>
