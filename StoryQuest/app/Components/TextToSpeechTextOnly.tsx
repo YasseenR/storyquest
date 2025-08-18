@@ -4,11 +4,13 @@ import React, { useEffect, useRef, useState } from "react";
 
 interface TextToSpeechCompletedStoryProps {
   text: string;
+  playOverlay: boolean;
   onComplete?: () => void;
 }
 
 const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
   text,
+  playOverlay,
   onComplete,
 }) => {
   const [isReady, setIsReady] = useState(false);
@@ -60,7 +62,7 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!text || !isReady || !voiceRef.current) return;
+    if (!text || !isReady || !voiceRef.current || playOverlay) return;
 
     const speakText = () => {
       try {

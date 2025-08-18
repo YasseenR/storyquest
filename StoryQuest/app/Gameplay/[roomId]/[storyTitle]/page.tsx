@@ -384,14 +384,16 @@ export default function Home() {
   }, [phrase, playerNumber, currentTurn]);
 
   const speakCurrentPhrase = useCallback(() => {
-    //setIsAutoReading(true); // Set to true when auto-read starts
-    //const u = new SpeechSynthesisUtterance(phrase);
+    setShowInitialPlayOverlay(false);
+    //setIsAutoReading(false);
+    setIsAutoReading(true); // Set to true when auto-read starts
+    const u = new SpeechSynthesisUtterance(phrase);
     //u.addEventListener("end", () => {
-    //  setIsAutoReading(false); // Set to false when done
-      setShowInitialPlayOverlay(false);
+    //  setIsAutoReading(false); // Set to false when done  
     //});
-    //window.speechSynthesis.cancel();
-    //window.speechSynthesis.speak(u);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+    setIsAutoReading(false);
   }, [phrase]);
 
   // Not used
@@ -909,7 +911,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Calls AutomaticTextToSpeech, which speech texts the current fill in the blank phrase*/}
-          {phrase && <TextToSpeechTextOnly key={phrase} text={phrase} />}
+          {phrase && <TextToSpeechTextOnly key={phrase} text={phrase} playOverlay={showInitialPlayOverlay}/>}
 
           {/* Text to speech completed story*/}
           {phrase === "The End!" && (
