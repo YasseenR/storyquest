@@ -25,13 +25,13 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
       return;
     }
 
-    const preferredVoiceNames = ["Google US English", "Samantha"];
+    const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
 
     const loadPreferredVoice = () => {
       const voices = window.speechSynthesis.getVoices();
       if (!voices || voices.length === 0) return false;
 
-      for (const name of preferredVoiceNames) {
+      for (const name of preferredVoices) {
         const voice = voices.find((v) => v.name.includes(name));
         if (voice) {
           voiceRef.current = voice;

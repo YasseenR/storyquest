@@ -12,14 +12,10 @@ const useQuickTextToSpeech = () => {
     if (!voices || voices.length === 0) return null;
 
     // Preferred voices 
-    const preferredNames = [
-      "Google US English",         // Chrome/Edge desktop
-      "Samantha",                  // Safari macOS/iOS
-      "Microsoft Zira Desktop"     // Windows female voice
-    ];
+    const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
 
     // Try preferred names first
-    for (const name of preferredNames) {
+    for (const name of preferredVoices) {
       const match = voices.find(v => v.name === name && v.lang === "en-US");
       if (match) return match;
     }

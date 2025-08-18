@@ -32,8 +32,8 @@ const useTextToSpeech = () => {
   // Return the same voice
   const selectVoice = () => {
     const voices = window.speechSynthesis.getVoices();
-    const preferredNames = ["Google US English", "Samantha", "Microsoft Zira Desktop"];
-    const voice = voices.find(v => preferredNames.includes(v.name) && v.lang === "en-US");
+    const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
+    const voice = voices.find(v => preferredVoices.includes(v.name) && v.lang === "en-US");
     return voice || voices.find(v => v.lang === "en-US") || voices[0];
   };
 

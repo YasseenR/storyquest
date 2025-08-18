@@ -40,6 +40,23 @@ import {
 
 const availableAvatars = ["🐯", "🐻", "🦄", "🐰", "🐬", "🦋"];
 
+const loadPreferredVoices = (): SpeechSynthesisVoice[] => {
+  const voices = window.speechSynthesis.getVoices();
+  return voices.filter((v) => v.lang.includes("en-US"));
+};
+
+const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
+
+const getPreferredVoice = (): SpeechSynthesisVoice | null => {
+  const voices = loadPreferredVoices();
+  for (const name of preferredVoices) {
+    const match = voices.find((v) => v.name === name);
+    if (match) return match;
+  }
+  //fallback to first us eng voice if none match
+  return voices[0] || null;
+};
+
 // getImageAnimation: Returns a reusable animation configuration for images.
 const getImageAnimation = () => ({
   initial: { opacity: 0, scale: 0.5 }, // Start with a small, transparent image.
@@ -388,6 +405,10 @@ export default function Home() {
     //setIsAutoReading(false);
     setIsAutoReading(true); // Set to true when auto-read starts
     const u = new SpeechSynthesisUtterance(phrase);
+    const prefVoice = getPreferredVoice();
+    if (prefVoice) {
+      u.voice = prefVoice;
+    }
     //u.addEventListener("end", () => {
     //  setIsAutoReading(false); // Set to false when done  
     //});
@@ -674,8 +695,8 @@ export default function Home() {
                 {playerNumber === currentTurn ? (
                   <p
                     className={`text-2xl font-extrabold ${highlightedPlayer === currentTurn
-                        ? "text-red-600 animate-pulse"
-                        : "text-green-600"
+                      ? "text-red-600 animate-pulse"
+                      : "text-green-600"
                       }`}
                   >
                     {highlightedPlayer === currentTurn
@@ -777,7 +798,7 @@ export default function Home() {
           </div>
 
           {/* Animated Images (sparkles removed) */}
-          <AnimatePresence> 
+          <AnimatePresence>
             {completedImages.map((image, index) => {
               const imageData = trimmedSections
                 .flatMap((section) => Object.values(section.words))
@@ -884,16 +905,16 @@ export default function Home() {
                   </FlipEffect>
                 );
               } else {*/}
-                effectComponent = (
-                  <motion.img
-                    key={`normal-${index}`}
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-48 h-48"
-                    {...getImageAnimation()}
-                  />
-                );
-              {/*}*/}
+              effectComponent = (
+                <motion.img
+                  key={`normal-${index}`}
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-48 h-48"
+                  {...getImageAnimation()}
+                />
+              );
+              {/*}*/ }
 
               return (
                 <div
@@ -911,7 +932,7 @@ export default function Home() {
           </AnimatePresence>
 
           {/* Calls AutomaticTextToSpeech, which speech texts the current fill in the blank phrase*/}
-          {phrase && <TextToSpeechTextOnly key={phrase} text={phrase} playOverlay={showInitialPlayOverlay}/>}
+          {phrase && <TextToSpeechTextOnly key={phrase} text={phrase} playOverlay={showInitialPlayOverlay} />}
 
           {/* Text to speech completed story*/}
           {phrase === "The End!" && (
