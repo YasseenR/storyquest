@@ -66,7 +66,7 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
 
     const speakText = () => {
       try {
-        window.speechSynthesis.cancel();
+        if (text !== "The End!") window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text.replace(/_/g, " "));
         utteranceRef.current = utterance;
