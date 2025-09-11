@@ -45,7 +45,7 @@ const loadPreferredVoices = (): SpeechSynthesisVoice[] => {
   return voices.filter((v) => v.lang.includes("en-US"));
 };
 
-const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
+const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)", "Google US Female",];
 
 const getPreferredVoice = (): SpeechSynthesisVoice | null => {
   const voices = loadPreferredVoices();
@@ -121,6 +121,7 @@ export default function Home() {
   const [playerNumber, setPlayerNumber] = useState<number | null>(null);
   const [maxPlayers, setMaxPlayers] = useState<number>(4);
   const [lastPlayedWord, setLastPlayedWord] = useState<string | null>(null);
+  const [lastPlayedTimestamp, setLastPlayedTimestamp] = useState<number | null>(null);
   const [ttsReady, setTtsReady] = useState(false);
   const [avatarModalOpen, setAvatarModalOpen] = useState<boolean>(false); //Opens window for player to choose avatar
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
@@ -400,6 +401,37 @@ export default function Home() {
     setBlockOverlay(isEnd || notYourTurn);
   }, [phrase, playerNumber, currentTurn]);
 
+  useEffect(() => {
+    if (!roomId) return;
+  
+    const gameRef = doc(db, "games", roomId);
+    const unsubscribe = onSnapshot(gameRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+  
+      const data = docSnap.data();
+      const lastWord = data.lastWordSelected?.word;
+      const lastTimestamp = data.lastWordSelected?.timestamp?.toMillis?.() || null;
+  
+      if (!lastWord || !lastTimestamp) return;
+      
+      if (lastPlayedWord === lastWord && lastPlayedTimestamp === lastTimestamp) return;
+  
+      console.log("Queueing word from Firestore:", lastWord, lastTimestamp);
+  
+      const utterance = new SpeechSynthesisUtterance(lastWord);
+      const prefVoice = getPreferredVoice();
+      if (prefVoice) utterance.voice = prefVoice;
+  
+      setSpeechQueue((queue) => [...queue, utterance]);
+  
+      // Update both states
+      setLastPlayedWord(lastWord);
+      setLastPlayedTimestamp(lastTimestamp);
+    });
+  
+    return () => unsubscribe();
+  }, [roomId, lastPlayedWord, lastPlayedTimestamp]);
+
   const speakCurrentPhrase = useCallback(() => {
     setShowInitialPlayOverlay(false);
     //setIsAutoReading(false);
@@ -409,10 +441,10 @@ export default function Home() {
     if (prefVoice) {
       u.voice = prefVoice;
     }
-    //u.addEventListener("end", () => {
-    //  setIsAutoReading(false); // Set to false when done  
-    //});
-    window.speechSynthesis.cancel();
+    u.addEventListener("end", () => {
+      setIsAutoReading(false); // Set to false when done  
+    });
+    //window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
     setIsAutoReading(false);
   }, [phrase]);

@@ -3,7 +3,6 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import useAACSounds from "./useAACSounds";
-import loadSound from "./useAACSounds";
 
  interface AACKeyboardProps {
    onSelect: (word: string) => void; 
@@ -21,15 +20,7 @@ import loadSound from "./useAACSounds";
   blockButtons = false
 }) => {
 
-  const { playSound, loadSound } = useAACSounds();
-
-  // Preload sounds when component mounts
-  useEffect(() => {
-    symbols.forEach(symbol => {
-      loadSound(symbol.word, `/aacSounds/${symbol.word}.mp3`);
-    });
-  }, [symbols]);
-
+  const { playSound } = useAACSounds();
   
      // Style for the blocking overlay
      const blockAACButtonOverlayStyle: React.CSSProperties = {

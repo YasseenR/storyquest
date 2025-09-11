@@ -1,132 +1,94 @@
 //StoryQuest/app/Components/useAACSounds.ts
 
-import useSound from 'use-sound';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from "react";
 
-//Hook for playing AAC keyboard button sounds, uses mp3 files for each button
 const useAACSounds = () => {
-    const audioElements = useRef<Record<string, HTMLAudioElement>>({});
-    const soundBaseUrl = '/aacSounds/';
-    const volumeLevel = 2; // increased mp3 sound volume
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [isReady, setIsReady] = useState(false);
+  const currentUtterance = useRef<SpeechSynthesisUtterance | null>(null);
 
-    const loadSound = (word: string, url: string) => {
-    // Create audio element on first use
-    if (!audioElements.current[word]) {
-        audioElements.current[word] = new Audio(url);
-        audioElements.current[word].preload = 'auto';
+  const selectVoice = (voices: SpeechSynthesisVoice[]) => {
+    if (!voices || voices.length === 0) return null;
+
+    const preferredVoices = [
+      "Google US English",
+      "Samantha",
+      "Microsoft Zira Desktop",
+      "Microsoft Aria Online (Natural)",
+      "Google US Female",
+    ];
+
+    for (const name of preferredVoices) {
+      const match = voices.find((v) => v.name === name && v.lang === "en-US");
+      if (match) return match;
+    }
+
+    const usEnglishVoice = voices.find((v) => v.lang === "en-US");
+    if (usEnglishVoice) return usEnglishVoice;
+
+    const englishVoice = voices.find((v) => v.lang.startsWith("en"));
+    if (englishVoice) return englishVoice;
+
+    return voices[0];
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      console.warn("Speech synthesis not supported");
+      return;
+    }
+
+    const synth = window.speechSynthesis;
+    let initialized = false;
+
+    const initializeSynth = () => {
+      if (initialized) return;
+
+      const voices = synth.getVoices();
+      if (voices.length > 0) {
+        const voice = selectVoice(voices);
+        setSelectedVoice(voice);
+        setIsReady(true);
+        initialized = true;
+
+        console.log("Selected voice:", voice?.name, voice?.lang);
+
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          const warmUp = new SpeechSynthesisUtterance("");
+          warmUp.volume = 0;
+          synth.speak(warmUp);
+          setTimeout(() => synth.cancel(), 100);
         }
-    };
-
-    // sound hooks for MP3 files
-    const [playApples] = useSound(`${soundBaseUrl}apples.mp3`, { volume: volumeLevel });
-    const [playAirplane] = useSound(`${soundBaseUrl}airplane.mp3`, { volume: volumeLevel });
-    const [playAlien] = useSound(`${soundBaseUrl}alien.mp3`, { volume: volumeLevel });
-    const [playAstronaut] = useSound(`${soundBaseUrl}astronaut.mp3`, { volume: volumeLevel });
-    const [playBalloon] = useSound(`${soundBaseUrl}balloon.mp3`, { volume: volumeLevel });
-    const [playBasket] = useSound(`${soundBaseUrl}basket.mp3`, { volume: volumeLevel });
-    const [playBear] = useSound(`${soundBaseUrl}bear.mp3`, { volume: volumeLevel });
-    const [playBee] = useSound(`${soundBaseUrl}bee.mp3`, { volume: volumeLevel });
-    const [playBird] = useSound(`${soundBaseUrl}bird.mp3`, { volume: volumeLevel });
-    const [playBirds] = useSound(`${soundBaseUrl}birds.mp3`, { volume: volumeLevel });
-    const [playBook] = useSound(`${soundBaseUrl}book.mp3`, { volume: volumeLevel });
-    const [playBoy] = useSound(`${soundBaseUrl}boy.mp3`, { volume: volumeLevel });
-    const [playButterfly] = useSound(`${soundBaseUrl}butterfly.mp3`, { volume: volumeLevel });
-    const [playCar] = useSound(`${soundBaseUrl}car.mp3`, { volume: volumeLevel });
-    const [playCherries] = useSound(`${soundBaseUrl}cherries.mp3`, { volume: volumeLevel });
-    const [playCloud] = useSound(`${soundBaseUrl}cloud.mp3`, { volume: volumeLevel });
-    const [playComet] = useSound(`${soundBaseUrl}comet.mp3`, { volume: volumeLevel });
-    const [playCow] = useSound(`${soundBaseUrl}cow.mp3`, { volume: volumeLevel });
-    const [playFlag] = useSound(`${soundBaseUrl}flag.mp3`, { volume: volumeLevel });
-    const [playFlowers] = useSound(`${soundBaseUrl}flowers.mp3`, { volume: volumeLevel });
-    const [playHelicopter] = useSound(`${soundBaseUrl}helicopter.mp3`, { volume: volumeLevel });
-    const [playHero] = useSound(`${soundBaseUrl}hero.mp3`, { volume: volumeLevel });
-    const [playLadybug] = useSound(`${soundBaseUrl}ladybug.mp3`, { volume: volumeLevel });
-    const [playLanterns] = useSound(`${soundBaseUrl}lanterns.mp3`, { volume: volumeLevel });
-    const [playMonkey] = useSound(`${soundBaseUrl}monkey.mp3`, { volume: volumeLevel });
-    const [playMoon] = useSound(`${soundBaseUrl}moon.mp3`, { volume: volumeLevel });
-    const [playMouse] = useSound(`${soundBaseUrl}mouse.mp3`, { volume: volumeLevel });
-    const [playOranges] = useSound(`${soundBaseUrl}orange.mp3`, { volume: volumeLevel });
-    const [playPlanet] = useSound(`${soundBaseUrl}planet.mp3`, { volume: volumeLevel });
-    const [playRainbow] = useSound(`${soundBaseUrl}rainbow.mp3`, { volume: volumeLevel });
-    const [playRobot] = useSound(`${soundBaseUrl}robot.mp3`, { volume: volumeLevel });
-    const [playRock] = useSound(`${soundBaseUrl}rock.mp3`, { volume: volumeLevel });
-    const [playRocket] = useSound(`${soundBaseUrl}rocket.mp3`, { volume: volumeLevel });
-    const [playShootingStar] = useSound(`${soundBaseUrl}shootingStar.mp3`, { volume: volumeLevel });
-    const [playSpaceCat] = useSound(`${soundBaseUrl}spaceCat.mp3`, { volume: volumeLevel });
-    const [playSpaceDog] = useSound(`${soundBaseUrl}spaceDog.mp3`, { volume: volumeLevel });
-    const [playSpaceDragon] = useSound(`${soundBaseUrl}spaceDragon.mp3`, { volume: volumeLevel });
-    const [playSquirrel] = useSound(`${soundBaseUrl}squirrel.mp3`, { volume: volumeLevel });
-    const [playStar] = useSound(`${soundBaseUrl}star.mp3`, { volume: volumeLevel });
-    const [playSun] = useSound(`${soundBaseUrl}sun.mp3`, { volume: volumeLevel });
-    const [playTreasure] = useSound(`${soundBaseUrl}treasure.mp3`, { volume: volumeLevel });
-    const [playUFO] = useSound(`${soundBaseUrl}UFO.mp3`, { volume: volumeLevel });
-    const [playWitch] = useSound(`${soundBaseUrl}witch.mp3`, { volume: volumeLevel });
-    const [playWizard] = useSound(`${soundBaseUrl}wizard.mp3`, { volume: volumeLevel });
-    const [playMushrooms] = useSound(`${soundBaseUrl}mushrooms.mp3`, { volume: volumeLevel });
-
-    // play function for each word
-    const soundMap: Record<string, () => void> = {
-        apples: playApples,
-        airplane: playAirplane,
-        alien: playAlien,
-        astronaut: playAstronaut,
-        balloon: playBalloon,
-        basket: playBasket,
-        bear: playBear,
-        bee: playBee,
-        bird: playBird,
-        birds: playBirds,
-        book: playBook,
-        boy: playBoy,
-        butterfly: playButterfly,
-        car: playCar,
-        cherries: playCherries,
-        cloud: playCloud,
-        comet: playComet,
-        cow: playCow,
-        flag: playFlag,
-        flowers: playFlowers,
-        helicopter: playHelicopter,
-        hero: playHero,
-        ladybug: playLadybug,
-        lanterns: playLanterns,
-        monkey: playMonkey,
-        moon: playMoon,
-        mouse: playMouse,
-        oranges: playOranges,
-        planet: playPlanet,
-        rainbow: playRainbow,
-        robot: playRobot,
-        rock: playRock,
-        rocket: playRocket,
-        shootingStar: playShootingStar,
-        spaceCat: playSpaceCat,
-        spaceDog: playSpaceDog,
-        spaceDragon: playSpaceDragon,
-        squirrel: playSquirrel,
-        star: playStar,
-        sun: playSun,
-        treasure: playTreasure,
-        UFO: playUFO,
-        witch: playWitch,
-        wizard: playWizard,
-        mushrooms: playMushrooms
-    };
-
-    const playSound = (word: string) => {
-    // iOS requires this to happen synchronously during the click handler
-    try {
-      const audio = audioElements.current[word];
-      if (audio) {
-        audio.currentTime = 0; // Rewind if already playing
-        audio.play().catch(e => console.error("Audio play failed:", e));
       }
+    };
+
+    if (synth.onvoiceschanged !== undefined) {
+      synth.onvoiceschanged = initializeSynth;
+    }
+
+    initializeSynth();
+  }, []);
+
+  const playSound = (word: string) => {
+    if (!isReady || !word) return;
+
+    try {
+      window.speechSynthesis.cancel(); 
+
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "en-US";
+      utterance.rate = 1;  
+      utterance.pitch = 1; 
+      if (selectedVoice) utterance.voice = selectedVoice;
+
+      currentUtterance.current = utterance;
+      window.speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error("Sound error:", error);
+      console.error("TTS error:", error);
     }
   };
 
-    return { playSound, loadSound };
+  return { playSound };
 };
 
 export default useAACSounds;
