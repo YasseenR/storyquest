@@ -146,10 +146,9 @@ export default function Home() {
   const [highlightedPlayer, setHighlightedPlayer] = useState<number | null>(
     null
   );
-  const [speechQueue, setSpeechQueue] = useState<SpeechSynthesisUtterance[]>(
-    []
-  );
+  const [speechQueue, setSpeechQueue] = useState<SpeechSynthesisUtterance[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isFinalStoryRead, setIsFinalStoryRead] = useState(false);
 
   //Grabbing roomID and story title from URL
   //roomID stores in firestore
@@ -401,53 +400,69 @@ export default function Home() {
     setBlockOverlay(isEnd || notYourTurn);
   }, [phrase, playerNumber, currentTurn]);
 
+  // useEffect for the final story
   useEffect(() => {
-    if (!roomId) return;
-  
-    const gameRef = doc(db, "games", roomId);
-    const unsubscribe = onSnapshot(gameRef, (docSnap) => {
-      if (!docSnap.exists()) return;
-  
-      const data = docSnap.data();
-      const lastWord = data.lastWordSelected?.word;
-      const lastTimestamp = data.lastWordSelected?.timestamp?.toMillis?.() || null;
-  
-      if (!lastWord || !lastTimestamp) return;
-      
-      if (lastPlayedWord === lastWord && lastPlayedTimestamp === lastTimestamp) return;
-  
-      console.log("Queueing word from Firestore:", lastWord, lastTimestamp);
-  
-      const utterance = new SpeechSynthesisUtterance(lastWord);
+    if (storyCompleted && !isFinalStoryRead) {
+      setIsFinalStoryRead(true);
+
+      // Combine all phrases into one complete story
+      const fullStoryText = [...completedPhrases, "The End!"].join(". ");
+      const finalUtterance = new SpeechSynthesisUtterance(fullStoryText); // Full story
+
       const prefVoice = getPreferredVoice();
-      if (prefVoice) utterance.voice = prefVoice;
-  
-      setSpeechQueue((queue) => [...queue, utterance]);
-  
-      // Update both states
-      setLastPlayedWord(lastWord);
-      setLastPlayedTimestamp(lastTimestamp);
-    });
-  
-    return () => unsubscribe();
-  }, [roomId, lastPlayedWord, lastPlayedTimestamp]);
+      if (prefVoice) finalUtterance.voice = prefVoice;
+
+      // Set a function to show the overlay when the narration finishes
+      finalUtterance.onend = () => {
+        console.log("Final story narration complete.");
+        setShowOverlay(true);
+      };
+
+      setTimeout(() => {
+        window.speechSynthesis.speak(finalUtterance);
+      }, 1500);
+    }
+  }, [storyCompleted, isFinalStoryRead, completedPhrases]);
 
   const speakCurrentPhrase = useCallback(() => {
     setShowInitialPlayOverlay(false);
-    //setIsAutoReading(false);
-    setIsAutoReading(true); // Set to true when auto-read starts
+
     const u = new SpeechSynthesisUtterance(phrase);
+    // Assign preferred voice to the utterance
     const prefVoice = getPreferredVoice();
     if (prefVoice) {
       u.voice = prefVoice;
     }
     u.addEventListener("end", () => {
-      setIsAutoReading(false); // Set to false when done  
+      setIsAutoReading(false);
     });
-    //window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(u);
-    setIsAutoReading(false);
+    // Add the phrase to the front of the speech queue
+    setSpeechQueue(queue => [u, ...queue]);
   }, [phrase]);
+
+  // useEffect to process speach queue
+  useEffect(() => {
+    // Only proceed if there are words to speak and TTS is not speaking at the moment
+    if (speechQueue.length > 0 && !isSpeaking && !storyCompleted) {
+      setIsSpeaking(true);
+      
+      // Get the first utterance from the queue
+      const utterance = speechQueue[0];
+     
+      // When utterance finishes speaking, removes firwst item from queue and resets isSpeaking
+      utterance.onend = () => {
+        setSpeechQueue((prevQueue) => prevQueue.slice(1));
+        setIsSpeaking(false);
+      };
+      
+      utterance.onerror = (e) => {
+        console.warn("Speech synthesis error:", e);
+        setSpeechQueue((prevQueue) => prevQueue.slice(1));
+        setIsSpeaking(false);
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [speechQueue, isSpeaking]);
 
   // Not used
   const handleStoryChange = async (story: Story, phraseLimit: number) => {
@@ -564,10 +579,18 @@ export default function Home() {
     if (playerNumber !== currentTurn) {
       return;
     }
-    console.log("AAC Button Clicked:", word);
-    playSound(word);
+
+    const utterance = new SpeechSynthesisUtterance(word);
+    const prefVoice = getPreferredVoice();
+    if (prefVoice) utterance.voice = prefVoice;
+
+    // Add utterance to speech queue instead of playing it directly
+    setSpeechQueue(queue => [...queue, utterance]);
+
+    // Call the function that updates the game state in Firestore
     handleWordSelect(word);
-    // Reset announcement state
+
+    // Reset announcement state and timer 
     setAnnouncedPlayer(null);
     if (inactivityTimer) {
       clearTimeout(inactivityTimer);
@@ -965,20 +988,6 @@ export default function Home() {
 
           {/* Calls AutomaticTextToSpeech, which speech texts the current fill in the blank phrase*/}
           {phrase && <TextToSpeechTextOnly key={phrase} text={phrase} playOverlay={showInitialPlayOverlay} />}
-
-          {/* Text to speech completed story*/}
-          {phrase === "The End!" && (
-            <div>
-              {/*Call completedstory button and pass completedphrase map*/}
-              <CompletedStory
-                completedPhrases={completedPhrases}
-                roomId={roomId}
-                onComplete={() => {
-                  setShowOverlay(true);
-                }}
-              />
-            </div>
-          )}
 
           {showOverlay && (
             <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center">

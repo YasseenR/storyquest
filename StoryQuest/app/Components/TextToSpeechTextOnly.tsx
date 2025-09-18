@@ -24,8 +24,14 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
       console.warn("Speech synthesis not supported");
       return;
     }
-
-    const preferredVoices = ["Google US English", "Samantha", "Microsoft Zira Desktop", "Microsoft Aria Online (Natural)","Google US Female",];
+  
+    const preferredVoices = [
+      "Samantha", 
+      "Google US English", 
+      "Microsoft Zira Desktop",
+      "Microsoft Aria Online (Natural)",
+      "Google US Female",
+    ];
 
     const loadPreferredVoice = () => {
       const voices = window.speechSynthesis.getVoices();
@@ -39,6 +45,24 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
           return true;
         }
       }
+      
+      const femaleUsVoice = voices.find(
+        (v) => v.lang.includes("en-US") && (v.name.includes("Female") || v.name.includes("Feminine"))
+      );
+      if (femaleUsVoice) {
+        voiceRef.current = femaleUsVoice;
+        setIsReady(true);
+        return true;
+      }
+
+      const anyUsVoice = voices.find((v) => v.lang.includes("en-US"));
+      if (anyUsVoice) {
+        voiceRef.current = anyUsVoice;
+        setIsReady(true);
+        return true;
+      }
+
+      console.warn("No voice found.");
       return false;
     };
 
@@ -60,6 +84,7 @@ const TextToSpeechTextOnly: React.FC<TextToSpeechCompletedStoryProps> = ({
       };
     }
   }, []);
+
 
   useEffect(() => {
     if (!text || !isReady || !voiceRef.current || playOverlay) return;
