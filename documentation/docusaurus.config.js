@@ -8,7 +8,7 @@
  * The URL or reference to your projects logo!
  * @type {string}
  */
-const logo = 'img/StoryQuest_fixed.png'; 
+const logo = 'img/StoryQuest_fixed.png';
 
 const main_template_jira_scripts = () => {
   if (process.env.ORG_NAME === 'ApplebaumIan'){
@@ -28,8 +28,8 @@ const title = "StoryQuest"
   .split(' ')
   .map(word => {
     // Make sure the word has at least one character
-    return word.length > 0 
-      ? word[0].toUpperCase() + word.substring(1) 
+    return word.length > 0
+      ? word[0].toUpperCase() + word.substring(1)
       : '';
   })
   .join(' ');
@@ -215,6 +215,13 @@ const config = {
         routeBasePath: 'tutorial',
         sidebarPath: require.resolve('./sidebars.js'),
         // ... other options
+      },
+    ],
+    [
+      '@docusaurus/plugin-google-gtag',
+      {
+        trackingID: 'G-NVETSR1YJS',
+        anonymizeIP: true,
       },
     ],
     [
