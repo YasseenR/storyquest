@@ -124,18 +124,6 @@ Social interactions for development remains important at the grade-school level.
 5. **Session Management**
 6. **Sustained Engagement**
 
-## Bugs 
-1. Prompt Security (rebuilding the app around an improved prompt tracking system would fix alot of bugs).
-2. Display changes depending on on system settings (Dark/Light).
-3. End Game Completion Page isn't triggered properly.
-4. Make it clear that the game is meant to be played horizontally on a tablet, but the host sets up the game on another screen.
-5. Improved waiting room.
-6. Rejoining the room if a player leaves, right now the game persists but they can join again.
-7. The announcement when a player doesn't choice is using the same speech synthesis, so it interrupts the autoreader at the end. Hence the longer time.
-8. "Start Adventure" gets cut off when we navigate to a new page when setting up.
-9. The player annoucement for when the player does not select, keeps going no matter what page you are on. So if you finish the story, it will still track 30 seconds and announce one more time. 
-10. Home-page is black after we return to it after the auto redirect after the completion page.
-11. Images are overlapping the words at the end, a pop up with the story over the images would be good.
 
 
 ## Collaborators
