@@ -13,7 +13,7 @@ export default function Home() {
     return (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-cover bg-center overflow-hidden"
              style={{
-                 backgroundImage: "url('images/home-background.jpg')",
+                 backgroundImage: "url('/images/home-background.jpg')",
              }}>
 
             {/*Main Content Div*/}    
